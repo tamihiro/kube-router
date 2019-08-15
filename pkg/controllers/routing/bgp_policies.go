@@ -98,17 +98,17 @@ func (nrc *NetworkRoutingController) AddPolicies() error {
 	}
 
 	// a slice of all peers is used as a match condition for reject statement of clusteripprefixset import polcy
-	if len(externalBgpPeers)+len(iBGPPeers) > 0 {
-		allBgpPeers := append(externalBgpPeers, iBGPPeers...)
-		ns, _ := table.NewNeighborSet(config.NeighborSet{
-			NeighborSetName:  "allpeerset",
-			NeighborInfoList: allBgpPeers,
-		})
-		err := nrc.bgpServer.ReplaceDefinedSet(ns)
-		if err != nil {
-			nrc.bgpServer.AddDefinedSet(ns)
-		}
+	//if len(externalBgpPeers)+len(iBGPPeers) > 0 {
+	allBgpPeers := append(externalBgpPeers, iBGPPeers...)
+	ns, _ := table.NewNeighborSet(config.NeighborSet{
+		NeighborSetName:  "allpeerset",
+		NeighborInfoList: allBgpPeers,
+	})
+	err = nrc.bgpServer.ReplaceDefinedSet(ns)
+	if err != nil {
+		nrc.bgpServer.AddDefinedSet(ns)
 	}
+	//}
 
 	err = nrc.addExportPolicies()
 	if err != nil {

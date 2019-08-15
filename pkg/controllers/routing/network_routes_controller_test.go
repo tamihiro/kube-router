@@ -1579,7 +1579,17 @@ func Test_AddPolicies(t *testing.T) {
 				BgpDefinedSets: config.BgpDefinedSets{},
 			},
 			&config.DefinedSets{},
-			&config.DefinedSets{},
+			&config.DefinedSets{
+				PrefixSets: []config.PrefixSet{},
+				NeighborSets: []config.NeighborSet{
+					{
+						NeighborSetName:  "allpeerset",
+						NeighborInfoList: []string{},
+					},
+				},
+				TagSets:        []config.TagSet{},
+				BgpDefinedSets: config.BgpDefinedSets{},
+			},
 			[]*config.Statement{
 				{
 					Name: "kube_router_export_stmt0",
@@ -1604,6 +1614,10 @@ func Test_AddPolicies(t *testing.T) {
 					Conditions: config.Conditions{
 						MatchPrefixSet: config.MatchPrefixSet{
 							PrefixSet:       "clusteripprefixset",
+							MatchSetOptions: config.MATCH_SET_OPTIONS_RESTRICTED_TYPE_ANY,
+						},
+						MatchNeighborSet: config.MatchNeighborSet{
+							NeighborSet:     "allpeerset",
 							MatchSetOptions: config.MATCH_SET_OPTIONS_RESTRICTED_TYPE_ANY,
 						},
 					},
