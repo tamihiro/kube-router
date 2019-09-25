@@ -818,7 +818,7 @@ func (nrc *NetworkRoutingController) startBgpServer() error {
 		}
 
 		// Create and set Global Peer Router complete configs
-		nrc.globalPeerRouters, err = newGlobalPeers(peerIPs, peerPorts, peerASNs, peerPasswords)
+		nrc.globalPeerRouters, err = newGlobalPeers(peerIPs, peerPorts, peerASNs, peerPasswords, nrc.nodeIP.String())
 		if err != nil {
 			err2 := nrc.bgpServer.Stop()
 			if err2 != nil {
@@ -990,7 +990,7 @@ func NewNetworkRoutingController(clientset kubernetes.Interface,
 	}
 
 	nrc.globalPeerRouters, err = newGlobalPeers(kubeRouterConfig.PeerRouters, peerPorts,
-		peerASNs, peerPasswords)
+		peerASNs, peerPasswords, nrc.nodeIP.String())
 	if err != nil {
 		return nil, fmt.Errorf("Error processing Global Peer Router configs: %s", err)
 	}

@@ -90,6 +90,10 @@ func (nrc *NetworkRoutingController) syncInternalPeers() {
 
 		currentNodes = append(currentNodes, nodeIP.String())
 		nrc.activeNodes[nodeIP.String()] = true
+		// explicitly set neighbors.transport.config.local-address with nodeIP which is configured
+		// as their neighbor address at the remote peers.
+		// this prevents the controller from initiating connection to its peers with a different IP address
+		// when multiple L3 interfaces are active.
 		n := &config.Neighbor{
 			Config: config.NeighborConfig{
 				NeighborAddress: nodeIP.String(),
@@ -97,7 +101,8 @@ func (nrc *NetworkRoutingController) syncInternalPeers() {
 			},
 			Transport: config.Transport{
 				Config: config.TransportConfig{
-					RemotePort: nrc.bgpPort,
+					LocalAddress: nrc.nodeIP.String(),
+					RemotePort:   nrc.bgpPort,
 				},
 			},
 		}
@@ -260,7 +265,7 @@ func connectToExternalBGPPeers(server *gobgp.BgpServer, peerNeighbors []*config.
 }
 
 // Does validation and returns neighbor configs
-func newGlobalPeers(ips []net.IP, ports []uint16, asns []uint32, passwords []string) (
+func newGlobalPeers(ips []net.IP, ports []uint16, asns []uint32, passwords []string, localAddress string) (
 	[]*config.Neighbor, error) {
 	peers := make([]*config.Neighbor, 0)
 
@@ -295,6 +300,10 @@ func newGlobalPeers(ips []net.IP, ports []uint16, asns []uint32, passwords []str
 				asns[i])
 		}
 
+		// explicitly set neighbors.transport.config.local-address with nodeIP which is configured
+		// as their neighbor address at the remote peers.
+		// this prevents the controller from initiating connection to its peers with a different IP address
+		// when multiple L3 interfaces are active.
 		peer := &config.Neighbor{
 			Config: config.NeighborConfig{
 				NeighborAddress: ips[i].String(),
@@ -302,7 +311,8 @@ func newGlobalPeers(ips []net.IP, ports []uint16, asns []uint32, passwords []str
 			},
 			Transport: config.Transport{
 				Config: config.TransportConfig{
-					RemotePort: options.DEFAULT_BGP_PORT,
+					LocalAddress: localAddress,
+					RemotePort:   options.DEFAULT_BGP_PORT,
 				},
 			},
 		}
